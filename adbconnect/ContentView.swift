@@ -67,6 +67,12 @@ struct DeviceActionsView: View {
                 Text(device.id)
             }.frame(maxWidth: .infinity, alignment: .leading).padding(.bottom, 5)
             
+            HStack(alignment: .top) {
+                Text(device.manufacturer)
+                Text("-")
+                Text(device.model)
+            }.frame(maxWidth: .infinity, alignment: .leading).padding(.bottom, 5)
+            
             // tcp connection
             HStack(alignment: .top) {
                 Image("WifiIcon").resizable().frame(width: 18.0, height: 18.0)

@@ -20,12 +20,24 @@ class AdbHelper {
                 !id.isEmpty
             })
             .map { (id) -> Device in
-                Device(id: id, name: getDeviceName(deviceId: id))
+                Device(id: id, name: getDeviceName(deviceId: id), model: getDeviceModel(deviceId: id), manufacturer: getDeviceManufacturer(deviceId: id))
             }
     }
     
     func getDeviceName(deviceId: String) -> String {
+//        let command2 = "-s " + deviceId + " shell getprop"
+//        print(runAdbCommand(command2))
+        let command = "-s " + deviceId + " shell getprop ro.product.name"
+        return runAdbCommand(command)
+    }
+    
+    func getDeviceModel(deviceId: String) -> String {
         let command = "-s " + deviceId + " shell getprop ro.product.model"
+        return runAdbCommand(command)
+    }
+    
+    func getDeviceManufacturer(deviceId: String) -> String {
+        let command = "-s " + deviceId + " shell getprop ro.product.manufacturer"
         return runAdbCommand(command)
     }
     
