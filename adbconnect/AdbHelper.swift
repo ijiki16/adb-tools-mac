@@ -20,25 +20,40 @@ class AdbHelper {
                 !id.isEmpty
             })
             .map { (id) -> Device in
-                Device(id: id, name: getDeviceName(deviceId: id), model: getDeviceModel(deviceId: id), manufacturer: getDeviceManufacturer(deviceId: id))
+                Device(id: id, propsDictionary: getDevicePropsDictionary(deviceId: id))
             }
     }
     
-    func getDeviceName(deviceId: String) -> String {
-//        let command2 = "-s " + deviceId + " shell getprop"
-//        print(runAdbCommand(command2))
-        let command = "-s " + deviceId + " shell getprop ro.product.name"
-        return runAdbCommand(command)
+    private func getInfo(part: String) -> String {
+        return part.replacingOccurrences(of: "[", with: "").replacingOccurrences(of: "]", with: "")
     }
     
-    func getDeviceModel(deviceId: String) -> String {
-        let command = "-s " + deviceId + " shell getprop ro.product.model"
-        return runAdbCommand(command)
+    private func parseInfo(cmdOutput: String) -> [String: String] {
+        
+        var propsDictionary = [String: String]()
+    
+        let lineList = cmdOutput.components(separatedBy: .newlines).filter { !$0.isEmpty }
+        
+        // Parse  [key]: [value] Line to dictionary
+        for line in lineList {
+            let components = line.components(separatedBy: ": ")
+            
+            if components.count != 2 { continue }
+            
+            let key = getInfo(part: components[0])
+            let value = getInfo(part: components[1])
+            
+            propsDictionary[key] = value
+        }
+        
+        return propsDictionary;
     }
     
-    func getDeviceManufacturer(deviceId: String) -> String {
-        let command = "-s " + deviceId + " shell getprop ro.product.manufacturer"
-        return runAdbCommand(command)
+    func getDevicePropsDictionary(deviceId: String)-> [String: String]{
+        let command = "-s " + deviceId + " shell getprop"
+        let output = runAdbCommand(command)
+        let propsDictionary = parseInfo(cmdOutput: output)
+        return propsDictionary
     }
     
     func takeScreenshot(deviceId: String) {
@@ -55,7 +70,7 @@ class AdbHelper {
             _ = self.runAdbCommand(command)
         }
     }
-
+    
     func stopScreenRecording(deviceId: String) {
         let time = formattedTime()
         
@@ -83,7 +98,7 @@ class AdbHelper {
             _ = self.runAdbCommand("-s " + deviceId + " disconnect")
         }
     }
-
+    
     func getDeviceIp(deviceId: String) -> String {
         let command = "-s " + deviceId + " shell ip route | awk '{print $9}'"
         return runAdbCommand(command)

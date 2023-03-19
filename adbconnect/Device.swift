@@ -13,10 +13,11 @@ struct Device {
     var model: String
     var manufacturer: String
 
-    init(id: String, name: String, model: String, manufacturer: String) {
+    init(id: String,propsDictionary: [String: String]) {
         self.id = id
-        self.name = name
-        self.model = model
-        self.manufacturer = manufacturer
+        self.name = propsDictionary["ro.product.name"] ?? ""
+        self.model = propsDictionary["ro.product.model"] ?? ""
+        self.manufacturer = propsDictionary["ro.product.manufacturer"] ?? ""
     }
 }
+
